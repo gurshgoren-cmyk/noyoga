@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#27312b">
+<title>noyoga — יוגה עם נוי</title>
+<style>
+:root{--bg:#f4f0e8;--paper:#fffdf8;--ink:#27312b;--muted:#7b827b;--sage:#73836d;--sage2:#dfe6d8;--line:#e6e0d5;--danger:#9a5c55}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#d8d3ca;color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}.app{width:min(100%,480px);min-height:100vh;margin:auto;background:var(--bg);padding-bottom:88px;box-shadow:0 0 50px #0001}
+header{padding:20px 20px 8px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#f4f0eedd;backdrop-filter:blur(12px);z-index:5}.brand{font-weight:850;letter-spacing:.5px;font-size:20px}.mark{width:40px;height:40px;border-radius:50%;background:var(--ink);color:white;display:grid;place-items:center}
+.hero{margin:12px 18px 22px;border-radius:30px;overflow:hidden;position:relative;min-height:420px;background:linear-gradient(160deg,#dfe6d8,#eeeae1)}
+.heroPhoto{height:260px;background:radial-gradient(circle at 50% 30%,#fff8 0 7%,transparent 8%),linear-gradient(145deg,#cfd9c8,#e9e4d9);display:grid;place-items:center;color:#687565;font-size:58px}.heroText{padding:22px}.eyebrow{color:var(--sage);font-weight:800;font-size:12px}.hero h1{font-size:35px;line-height:1.08;margin:7px 0 10px}.hero p{margin:0;color:#626a63;line-height:1.6;font-size:14px}.cta{display:inline-block;margin-top:17px;background:var(--ink);color:white;text-decoration:none;border-radius:14px;padding:12px 17px;font-weight:750}
+.section{padding:0 18px;margin-top:24px}.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.head h2{font-size:20px;margin:0}.small{font-size:12px;color:var(--muted)}
+.days{display:flex;gap:8px;overflow:auto;padding-bottom:4px}.day{min-width:72px;border:1px solid var(--line);background:var(--paper);border-radius:16px;padding:10px 8px;text-align:center;cursor:pointer}.day b{display:block;font-size:13px}.day span{font-size:11px;color:var(--muted)}.day.active{background:var(--ink);color:white}.day.active span{color:#ddd}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:15px;margin:10px 0;box-shadow:0 8px 22px #2f372e08}.top{display:flex;justify-content:space-between;gap:10px}.time{font-size:21px;font-weight:850}.type{background:var(--sage2);color:#53604f;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;height:max-content}.meta{display:flex;gap:13px;color:var(--muted);font-size:12px;margin:10px 0 13px}.book{border:0;background:var(--sage);color:white;width:100%;padding:12px;border-radius:14px;font-weight:800;cursor:pointer}.book:disabled{opacity:.45}
+.about{background:#eae6dd;border-radius:24px;padding:20px}.about p{font-size:13px;line-height:1.65;color:#626a63;margin-bottom:0}
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:9px}.contact a{background:var(--paper);border:1px solid var(--line);padding:13px;border-radius:14px;text-align:center;text-decoration:none;color:var(--ink);font-weight:750;font-size:13px}
+nav{position:fixed;bottom:0;width:min(100%,480px);background:#fffdf8ee;backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 8px 14px;z-index:10}.nav{font-size:11px;color:var(--muted);text-align:center;cursor:pointer}.nav.active{color:var(--ink);font-weight:800}.nav i{display:block;font-style:normal;font-size:20px;margin-bottom:2px}
+.overlay{display:none;position:fixed;inset:0;background:#1d251f66;z-index:20;align-items:flex-end;justify-content:center}.sheet{width:min(100%,480px);background:var(--paper);border-radius:28px 28px 0 0;padding:20px 18px 30px;max-height:90vh;overflow:auto}.handle{width:40px;height:4px;border-radius:5px;background:#d5d0c5;margin:0 auto 17px}.sheet h3{margin:0 0 5px;font-size:21px}.sheet p{font-size:13px;color:var(--muted)}label{display:block;font-size:12px;font-weight:750;margin:12px 0 5px}input,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:13px;padding:12px;outline:none}.summary{background:#f1eee6;border-radius:15px;padding:13px;margin:12px 0;font-size:13px}.pay{width:100%;border:0;background:#1c211e;color:white;border-radius:14px;padding:13px;font-weight:800;cursor:pointer}.secondary{width:100%;margin-top:8px;border:1px solid var(--line);background:transparent;border-radius:14px;padding:12px;font-weight:700}
+.admin{display:none}.admin .card{font-size:13px}.badge{display:inline-block;padding:4px 7px;border-radius:99px;background:var(--sage2);font-size:10px}
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:11px 16px;border-radius:99px;font-size:12px;display:none;z-index:40;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand">noyoga</div><div class="mark">n</div></header>
+
+<section class="hero" id="home">
+  <div class="heroPhoto" aria-label="מקום לתמונה של נוי">✦</div>
+  <div class="heroText">
+    <div class="eyebrow">יוגה • נשימה • תנועה</div>
+    <h1>לחזור לגוף.<br>למצוא שקט.</h1>
+    <p>שיעורי יוגה עם נוי, בקבוצות קטנות ובאווירה נעימה — לכל הרמות.</p>
+    <a class="cta" href="#classes">לוח השיעורים</a>
+  </div>
+</section>
+
+<section class="section" id="classes">
+<div class="head"><h2>השיעורים הקרובים</h2><span class="small" id="count"></span></div>
+<div class="days" id="days"></div>
+<div id="classList"></div>
+</section>
+
+<section class="section" id="about">
+<div class="about"><b>נעים להכיר, אני נוי 🌿</b><p>אני מאמינה שיוגה היא מקום לעצור, לנשום ולהקשיב לגוף. השיעורים שלי משלבים תנועה, נשימה ונוכחות — בלי צורך להיות גמישים או מנוסים.</p></div>
+</section>
+
+<section class="section">
+<div class="head"><h2>יצירת קשר</h2></div>
+<div class="contact"><a href="tel:0506991834">📞 050-699-1834</a><a href="https://wa.me/972506991834" target="_blank">💬 WhatsApp</a></div>
+</section>
+
+<section class="section admin" id="admin">
+<div class="head"><h2>הרשמות</h2><button class="secondary" onclick="clearBookings()">ניקוי מקומי</button></div>
+<div id="bookings"></div>
+</section>
+
+<nav>
+<div class="nav active" onclick="go('home')"><i>⌂</i>בית</div>
+<div class="nav" onclick="go('classes')"><i>◷</i>שיעורים</div>
+<div class="nav" onclick="go('about')"><i>♡</i>נוי</div>
+<div class="nav" onclick="openAdmin()"><i>☷</i>ניהול</div>
+</nav>
+</div>
+
+<div class="overlay" id="overlay">
+<div class="sheet">
+<div class="handle"></div>
+<h3>הרשמה לשיעור</h3>
+<p id="chosen"></p>
+<div class="summary" id="sum"></div>
+<label>שם מלא</label><input id="name" autocomplete="name" placeholder="איך קוראים לך?">
+<label>טלפון</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="050-0000000">
+<label>הערה (לא חובה)</label><input id="note" placeholder="משהו שנוי צריכה לדעת?">
+<button class="pay" onclick="register()">הרשמה ומעבר לתשלום</button>
+<button class="secondary" onclick="closeSheet()">ביטול</button>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CLASSES=[
+{id:1,date:'2026-08-18',day:'ג׳',label:'היום',time:'08:30',type:'Hatha',duration:60,price:65,spots:10,booked:2},
+{id:2,date:'2026-08-18',day:'ג׳',label:'היום',time:'18:00',type:'Flow',duration:75,price:75,spots:12,booked:5},
+{id:3,date:'2026-08-19',day:'ד׳',label:'מחר',time:'09:00',type:'Gentle',duration:60,price:65,spots:10,booked:3},
+{id:4,date:'2026-08-20',day:'ה׳',label:'ה׳',time:'19:30',type:'Flow',duration:75,price:75,spots:12,booked:4},
+{id:5,date:'2026-08-22',day:'ש׳',label:'שבת',time:'09:30',type:'Morning',duration:60,price:65,spots:10,booked:1}
+];
+let selected=null, activeDate='all';
+let bookings=JSON.parse(localStorage.getItem('noyoga_bookings')||'[]');
+
+function renderDays(){
+ const unique=[...new Map(CLASSES.map(c=>[c.date,c])).values()];
+ document.getElementById('days').innerHTML='<button class="day active" onclick="filterDate(\\'all\\',this)"><b>הכול</b><span>כל השיעורים</span></button>'+
+ unique.map(c=>`<button class="day" onclick="filterDate('${c.date}',this)"><b>${c.day}</b><span>${c.label}</span></button>`).join('');
+}
+function filterDate(d,el){activeDate=d;document.querySelectorAll('.day').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderClasses()}
+function renderClasses(){
+ let data=CLASSES.filter(c=>activeDate==='all'||c.date===activeDate);
+ document.getElementById('count').textContent=data.length+' שיעורים';
+ document.getElementById('classList').innerHTML=data.map(c=>{
+  const local=bookings.filter(b=>b.classId===c.id).length;
+  const left=Math.max(0,c.spots-c.booked-local);
+  return `<article class="card"><div class="top"><div><div class="time">${c.time}</div><div class="small">${c.day} · ${c.label}</div></div><div class="type">${c.type}</div></div><div class="meta"><span>${c.duration} דק׳</span><span>עד ${c.spots} משתתפים</span><span>₪${c.price}</span></div><button class="book" ${left===0?'disabled':''} onclick="openBooking(${c.id})">${left===0?'השיעור מלא':'להרשמה · נשארו '+left+' מקומות'}</button></article>`
+ }).join('');
+}
+function openBooking(id){selected=CLASSES.find(c=>c.id===id);document.getElementById('chosen').textContent=`${selected.type} · ${selected.day} ${selected.time}`;document.getElementById('sum').innerHTML=`<b>₪${selected.price}</b> · ${selected.duration} דקות · ${selected.label}`;document.getElementById('overlay').style.display='flex'}
+function closeSheet(){document.getElementById('overlay').style.display='none'}
+function register(){
+ const name=document.getElementById('name').value.trim(), phone=document.getElementById('phone').value.trim();
+ if(!name||!phone){toast('נא למלא שם וטלפון');return}
+ const b={id:Date.now(),classId:selected.id,className:selected.type,time:selected.time,date:selected.date,price:selected.price,name,phone,note:document.getElementById('note').value.trim(),created:new Date().toISOString()};
+ bookings.push(b);localStorage.setItem('noyoga_bookings',JSON.stringify(bookings));renderClasses();renderBookings();closeSheet();
+ toast('נשמר! עכשיו פותחים את Bit לתשלום');
+ // אין כאן קישור Bit מומצא: Bit דורש חיבור עסקי/ספק סליקה. בינתיים פותחים את המספר של נוי.
+ setTimeout(()=>{window.location.href='tel:0506991834'},600);
+}
+function renderBookings(){
+ const el=document.getElementById('bookings');
+ el.innerHTML=bookings.length?bookings.slice().reverse().map(b=>`<div class="card"><b>${b.name}</b> <span class="badge">ממתין לתשלום</span><div class="small">${b.className} · ${b.time} · ₪${b.price}<br>${b.phone}${b.note?' · '+b.note:''}</div></div>`).join(''):'<div class="small">עדיין אין הרשמות.</div>';
+}
+function openAdmin(){document.getElementById('admin').style.display='block';renderBookings();document.getElementById('admin').scrollIntoView({behavior:'smooth'})}
+function clearBookings(){if(confirm('למחוק את כל ההרשמות מהמכשיר?')){bookings=[];localStorage.removeItem('noyoga_bookings');renderClasses();renderBookings()}}
+function toast(t){const x=document.getElementById('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',3000)}
+function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth'})}
+renderDays();renderClasses();
+</script>
+</body>
+</html>
