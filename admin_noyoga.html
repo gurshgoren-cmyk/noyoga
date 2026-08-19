@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noyoga — ניהול הרשמות</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#f5f2ec;--card:#fffdf9;--ink:#1f2924;--muted:#77746d;--line:#e7e1d7;--accent:#1e2a24;--danger:#a33a35;--ok:#3f6d4d}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,"Noto Sans Hebrew",sans-serif}
+    button,input,select{font:inherit}
+    .wrap{max-width:1180px;margin:0 auto;padding:24px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}
+    h1{margin:0;font-size:30px}
+    .sub{color:var(--muted);margin-top:6px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    button{border:1px solid var(--line);background:#fff;padding:10px 15px;border-radius:11px;cursor:pointer}
+    button.primary{background:var(--accent);color:white;border-color:var(--accent)}
+    button.danger{color:var(--danger)}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+    .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+    .stat .n{font-size:28px;font-weight:700}
+    .stat .l{color:var(--muted);margin-top:4px}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:18px}
+    .filters{display:grid;grid-template-columns:1.5fr 1fr 1fr auto;gap:10px}
+    input,select{width:100%;border:1px solid var(--line);background:white;border-radius:11px;padding:11px 12px;outline:none}
+    input:focus,select:focus{border-color:#a8a197}
+    .table-wrap{overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:820px}
+    th,td{padding:13px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+    th{font-size:13px;color:var(--muted);font-weight:600}
+    td{font-size:14px}
+    .badge{display:inline-block;border-radius:999px;padding:5px 9px;background:#edf3ed;color:var(--ok);font-size:12px}
+    .empty{text-align:center;padding:45px 10px;color:var(--muted)}
+    .login{max-width:430px;margin:9vh auto;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px}
+    .login h2{margin-top:0}
+    .field{margin:12px 0}
+    .field label{display:block;font-size:13px;margin-bottom:6px;font-weight:600}
+    .msg{padding:11px 13px;border-radius:10px;margin:12px 0;background:#fff4dc;color:#725b22;display:none}
+    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1f2924;color:#fff;padding:12px 16px;border-radius:12px;display:none;z-index:10}
+    .note{color:var(--muted);font-size:12px;margin-top:12px}
+    @media(max-width:800px){.wrap{padding:14px}.top{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr}.filters .wide{grid-column:1/-1}}
+    @media(max-width:480px){.grid{grid-template-columns:1fr 1fr}.filters{grid-template-columns:1fr}.filters .wide{grid-column:auto}h1{font-size:24px}}
+  </style>
+</head>
+<body>
+
+<div id="loginView" class="login">
+  <h2>כניסת מנהל</h2>
+  <div class="sub">ניהול הרשמות ושיעורים — Noyoga</div>
+  <div id="loginMsg" class="msg"></div>
+  <div class="field"><label>אימייל</label><input id="email" type="email" autocomplete="username"></div>
+  <div class="field"><label>סיסמה</label><input id="password" type="password" autocomplete="current-password"></div>
+  <button id="loginBtn" class="primary" style="width:100%" onclick="login()">כניסה</button>
+</div>
+
+<div id="app" style="display:none">
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Noyoga — ניהול הרשמות</h1>
+        <div id="userEmail" class="sub"></div>
+      </div>
+      <div class="actions">
+        <button onclick="loadAll()">רענון</button>
+        <button onclick="exportCSV()">ייצוא CSV</button>
+        <button onclick="logout()">התנתקות</button>
+      </div>
+    </div>
+
+    <div id="msg" class="msg"></div>
+
+    <div class="grid">
+      <div class="stat"><div id="total" class="n">0</div><div class="l">סה״כ הרשמות</div></div>
+      <div class="stat"><div id="today" class="n">0</div><div class="l">הרשמות היום</div></div>
+      <div class="stat"><div id="upcoming" class="n">0</div><div class="l">שיעורים קרובים</div></div>
+      <div class="stat"><div id="students" class="n">0</div><div class="l">נרשמים ייחודיים</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="filters">
+        <input id="search" class="wide" placeholder="חיפוש לפי שם, טלפון או שיעור..." oninput="render()">
+        <select id="classFilter" onchange="render()"><option value="">כל השיעורים</option></select>
+        <select id="dateFilter" onchange="render()">
+          <option value="">כל התאריכים</option>
+          <option value="upcoming">שיעורים קרובים</option>
+          <option value="today">היום</option>
+          <option value="past">שיעורים שעברו</option>
+        </select>
+        <button onclick="clearFilters()">ניקוי</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h2 style="margin:0">כל ההרשמות</h2>
+        <span id="countLabel" class="sub"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>נרשם</th>
+              <th>טלפון</th>
+              <th>שיעור</th>
+              <th>תאריך ושעה</th>
+              <th>הערה</th>
+              <th>נרשם בתאריך</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div id="empty" class="empty" style="display:none">אין הרשמות להצגה.</div>
+      </div>
+      <div class="note">המסך טוען את ההרשמות ישירות מ־Supabase. מחיקה היא בלתי הפיכה.</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://rottdazqpvtmoarqymfj.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_M6VIzQn8GktMyyCwi5EC_A_4V6ov80s";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let registrations = [];
+let classes = [];
+
+const $ = id => document.getElementById(id);
+
+function showMsg(text, id="msg"){
+  const el=$(id); el.textContent=text; el.style.display="block";
+}
+function hideMsg(id="msg"){ $(id).style.display="none"; }
+function toast(text){
+  const el=$("toast"); el.textContent=text; el.style.display="block";
+  clearTimeout(window.__toast); window.__toast=setTimeout(()=>el.style.display="none",3000);
+}
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+function className(c){
+  return c?.title || c?.name || c?.class_name || "שיעור";
+}
+function classDate(c){
+  return c?.class_date || c?.date || "";
+}
+function classStart(c){
+  return c?.start_time || "";
+}
+function classDateTime(c){
+  const d=classDate(c);
+  const t=classStart(c);
+  return d ? new Date(d+"T"+(t||"00:00:00")) : null;
+}
+function formatDate(d){
+  if(!d) return "—";
+  const x=new Date(d+"T12:00:00");
+  return new Intl.DateTimeFormat("he-IL",{day:"2-digit",month:"2-digit",year:"numeric"}).format(x);
+}
+function formatDateTime(c){
+  const d=classDate(c), t=classStart(c);
+  if(!d) return "—";
+  return `${formatDate(d)}${t ? " · "+String(t).slice(0,5) : ""}`;
+}
+function regName(r){ return r.customer_name || r.full_name || r.name || "—"; }
+function regPhone(r){ return r.customer_phone || r.phone || ""; }
+function regNote(r){ return r.note || r.notes || ""; }
+function regClassId(r){ return r.class_id || r.class_uuid || r.classId; }
+function regCreated(r){ return r.created_at || r.createdAt; }
+
+async function login(){
+  hideMsg("loginMsg");
+  const email=$("email").value.trim(), password=$("password").value;
+  if(!email || !password){showMsg("נא למלא אימייל וסיסמה","loginMsg");return}
+  $("loginBtn").disabled=true;
+  const {error}=await db.auth.signInWithPassword({email,password});
+  $("loginBtn").disabled=false;
+  if(error){showMsg(error.message,"loginMsg");return}
+  await startApp();
+}
+
+async function logout(){
+  await db.auth.signOut();
+  $("app").style.display="none";
+  $("loginView").style.display="block";
+}
+
+async function startApp(){
+  const {data:{user}}=await db.auth.getUser();
+  if(!user){$("app").style.display="none";$("loginView").style.display="block";return}
+  $("loginView").style.display="none";
+  $("app").style.display="block";
+  $("userEmail").textContent=user.email || "";
+  await loadAll();
+}
+
+async function loadAll(){
+  hideMsg();
+  const [cr, rr] = await Promise.all([
+    db.from("classes").select("*").order("class_date",{ascending:true}).order("start_time",{ascending:true}),
+    db.from("registrations").select("*").order("created_at",{ascending:false})
+  ]);
+  if(cr.error){showMsg("שגיאה בטעינת השיעורים: "+cr.error.message);return}
+  if(rr.error){showMsg("שגיאה בטעינת ההרשמות: "+rr.error.message);return}
+  classes=cr.data||[];
+  registrations=rr.data||[];
+  buildClassFilter();
+  updateStats();
+  render();
+}
+
+function buildClassFilter(){
+  const current=$("classFilter").value;
+  const list=[...classes].sort((a,b)=>(classDateTime(a)||0)-(classDateTime(b)||0));
+  $("classFilter").innerHTML='<option value="">כל השיעורים</option>'+
+    list.map(c=>`<option value="${esc(c.id)}">${esc(className(c))} — ${esc(formatDateTime(c))}</option>`).join("");
+  $("classFilter").value=current;
+}
+
+function updateStats(){
+  const now=new Date();
+  const todayStr=now.toISOString().slice(0,10);
+  $("total").textContent=registrations.length;
+  $("today").textContent=registrations.filter(r=>{
+    const d=regCreated(r); return d && new Date(d).toISOString().slice(0,10)===todayStr;
+  }).length;
+  $("upcoming").textContent=classes.filter(c=>{const x=classDateTime(c);return x && x>=now}).length;
+  const unique=new Set(registrations.map(r=>(regPhone(r)||regName(r)).trim().toLowerCase()).filter(Boolean));
+  $("students").textContent=unique.size;
+}
+
+function render(){
+  const search=$("search").value.trim().toLowerCase();
+  const cf=$("classFilter").value;
+  const df=$("dateFilter").value;
+  const now=new Date();
+  const todayStr=now.toISOString().slice(0,10);
+
+  const rows=registrations.filter(r=>{
+    const c=classes.find(x=>String(x.id)===String(regClassId(r)));
+    const text=[regName(r),regPhone(r),regNote(r),className(c)].join(" ").toLowerCase();
+    if(search && !text.includes(search)) return false;
+    if(cf && String(regClassId(r))!==String(cf)) return false;
+    const dt=classDateTime(c);
+    if(df==="upcoming" && !(dt && dt>=now)) return false;
+    if(df==="past" && !(dt && dt<now)) return false;
+    if(df==="today" && classDate(c)!==todayStr) return false;
+    return true;
+  });
+
+  $("countLabel").textContent=`${rows.length} הרשמות`;
+  $("empty").style.display=rows.length?"none":"block";
+  $("rows").innerHTML=rows.map(r=>{
+    const c=classes.find(x=>String(x.id)===String(regClassId(r)));
+    const phone=regPhone(r);
+    return `<tr>
+      <td><strong>${esc(regName(r))}</strong></td>
+      <td>${phone?`<a href="tel:${esc(phone)}">${esc(phone)}</a>`:"—"}</td>
+      <td>${esc(className(c))}</td>
+      <td>${esc(formatDateTime(c))}</td>
+      <td>${esc(regNote(r)||"—")}</td>
+      <td>${regCreated(r)?esc(new Date(regCreated(r)).toLocaleString("he-IL")):"—"}</td>
+      <td><button class="danger" onclick="deleteRegistration('${esc(r.id)}')">מחיקה</button></td>
+    </tr>`;
+  }).join("");
+}
+
+async function deleteRegistration(id){
+  if(!confirm("למחוק את ההרשמה? הפעולה בלתי הפיכה.")) return;
+  const {error}=await db.from("registrations").delete().eq("id",id);
+  if(error){showMsg("לא ניתן למחוק את ההרשמה: "+error.message);return}
+  registrations=registrations.filter(r=>String(r.id)!==String(id));
+  updateStats();render();toast("ההרשמה נמחקה");
+}
+
+function clearFilters(){
+  $("search").value="";$("classFilter").value="";$("dateFilter").value="";render();
+}
+
+function csvCell(v){
+  return '"'+String(v??"").replace(/"/g,'""')+'"';
+}
+function exportCSV(){
+  const search=$("search").value.trim().toLowerCase(), cf=$("classFilter").value, df=$("dateFilter").value, now=new Date();
+  const rows=registrations.filter(r=>{
+    const c=classes.find(x=>String(x.id)===String(regClassId(r)));
+    const text=[regName(r),regPhone(r),regNote(r),className(c)].join(" ").toLowerCase();
+    if(search&&!text.includes(search))return false;
+    if(cf&&String(regClassId(r))!==String(cf))return false;
+    const dt=classDateTime(c);
+    if(df==="upcoming"&&!(dt&&dt>=now))return false;
+    if(df==="past"&&!(dt&&dt<now))return false;
+    if(df==="today"&&classDate(c)!==now.toISOString().slice(0,10))return false;
+    return true;
+  });
+  const head=["שם","טלפון","שיעור","תאריך","שעה","הערה","נרשם בתאריך"];
+  const lines=[head, ...rows.map(r=>{
+    const c=classes.find(x=>String(x.id)===String(regClassId(r)));
+    return [regName(r),regPhone(r),className(c),classDate(c),classStart(c),regNote(r),regCreated(r)];
+  })].map(row=>row.map(csvCell).join(","));
+  const blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="noyoga-registrations.csv";a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+db.auth.getSession().then(({data})=>{
+  if(data.session) startApp();
+});
+</script>
+</body>
+</html>
