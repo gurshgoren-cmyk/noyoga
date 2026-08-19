@@ -2,25 +2,22 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#27312b">
 <title>noyoga — יוגה עם נוי</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#f4f0e8;--paper:#fffdf8;--ink:#27312b;--muted:#7b827b;--sage:#73836d;--sage2:#dfe6d8;--line:#e6e0d5;--danger:#9a5c55}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#d8d3ca;color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,select{font:inherit}.app{width:min(100%,480px);min-height:100vh;margin:auto;background:var(--bg);padding-bottom:88px;box-shadow:0 0 50px #0001}
-header{padding:20px 20px 8px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#f4f0eedd;backdrop-filter:blur(12px);z-index:5}.brand{font-weight:850;letter-spacing:.5px;font-size:20px}.mark{width:40px;height:40px;border-radius:50%;background:var(--ink);color:white;display:grid;place-items:center}
-.hero{margin:12px 18px 22px;border-radius:30px;overflow:hidden;position:relative;min-height:420px;background:linear-gradient(160deg,#dfe6d8,#eeeae1)}
-.heroPhoto{height:260px;background:radial-gradient(circle at 50% 30%,#fff8 0 7%,transparent 8%),linear-gradient(145deg,#cfd9c8,#e9e4d9);display:grid;place-items:center;color:#687565;font-size:58px}.heroText{padding:22px}.eyebrow{color:var(--sage);font-weight:800;font-size:12px}.hero h1{font-size:35px;line-height:1.08;margin:7px 0 10px}.hero p{margin:0;color:#626a63;line-height:1.6;font-size:14px}.cta{display:inline-block;margin-top:17px;background:var(--ink);color:white;text-decoration:none;border-radius:14px;padding:12px 17px;font-weight:750}
-.section{padding:0 18px;margin-top:24px}.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.head h2{font-size:20px;margin:0}.small{font-size:12px;color:var(--muted)}
+:root{--bg:#f4f0e8;--paper:#fffdf8;--ink:#27312b;--muted:#7b827b;--sage:#73836d;--sage2:#dfe6d8;--line:#e6e0d5}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#d8d3ca;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font:inherit}.app{width:min(100%,480px);min-height:100vh;margin:auto;background:var(--bg);padding-bottom:88px}
+header{padding:20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#f4f0eedd;backdrop-filter:blur(12px);z-index:5}.brand{font-weight:850;font-size:20px}.mark{width:40px;height:40px;border-radius:50%;background:var(--ink);color:white;display:grid;place-items:center}
+.hero{margin:12px 18px 22px;border-radius:30px;overflow:hidden;background:linear-gradient(160deg,#dfe6d8,#eeeae1)}.heroPhoto{height:260px;display:grid;place-items:center;font-size:58px;background:linear-gradient(145deg,#cfd9c8,#e9e4d9)}.heroText{padding:22px}.eyebrow{color:var(--sage);font-weight:800;font-size:12px}.hero h1{font-size:35px;line-height:1.08;margin:7px 0 10px}.hero p{color:#626a63;line-height:1.6;font-size:14px}.cta{display:inline-block;margin-top:10px;background:var(--ink);color:white;text-decoration:none;border-radius:14px;padding:12px 17px;font-weight:750}
+.section{padding:0 18px;margin-top:24px}.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.head h2{font-size:20px;margin:0}.small{font-size:12px;color:var(--muted)}
 .days{display:flex;gap:8px;overflow:auto;padding-bottom:4px}.day{min-width:72px;border:1px solid var(--line);background:var(--paper);border-radius:16px;padding:10px 8px;text-align:center;cursor:pointer}.day b{display:block;font-size:13px}.day span{font-size:11px;color:var(--muted)}.day.active{background:var(--ink);color:white}.day.active span{color:#ddd}
-.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:15px;margin:10px 0;box-shadow:0 8px 22px #2f372e08}.top{display:flex;justify-content:space-between;gap:10px}.time{font-size:21px;font-weight:850}.type{background:var(--sage2);color:#53604f;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;height:max-content}.meta{display:flex;gap:13px;color:var(--muted);font-size:12px;margin:10px 0 13px}.book{border:0;background:var(--sage);color:white;width:100%;padding:12px;border-radius:14px;font-weight:800;cursor:pointer}.book:disabled{opacity:.45}
-.about{background:#eae6dd;border-radius:24px;padding:20px}.about p{font-size:13px;line-height:1.65;color:#626a63;margin-bottom:0}
-.contact{display:grid;grid-template-columns:1fr 1fr;gap:9px}.contact a{background:var(--paper);border:1px solid var(--line);padding:13px;border-radius:14px;text-align:center;text-decoration:none;color:var(--ink);font-weight:750;font-size:13px}
-nav{position:fixed;bottom:0;width:min(100%,480px);background:#fffdf8ee;backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 8px 14px;z-index:10}.nav{font-size:11px;color:var(--muted);text-align:center;cursor:pointer}.nav.active{color:var(--ink);font-weight:800}.nav i{display:block;font-style:normal;font-size:20px;margin-bottom:2px}
-.overlay{display:none;position:fixed;inset:0;background:#1d251f66;z-index:20;align-items:flex-end;justify-content:center}.sheet{width:min(100%,480px);background:var(--paper);border-radius:28px 28px 0 0;padding:20px 18px 30px;max-height:90vh;overflow:auto}.handle{width:40px;height:4px;border-radius:5px;background:#d5d0c5;margin:0 auto 17px}.sheet h3{margin:0 0 5px;font-size:21px}.sheet p{font-size:13px;color:var(--muted)}label{display:block;font-size:12px;font-weight:750;margin:12px 0 5px}input,select{width:100%;border:1px solid var(--line);background:#fff;border-radius:13px;padding:12px;outline:none}.summary{background:#f1eee6;border-radius:15px;padding:13px;margin:12px 0;font-size:13px}.pay{width:100%;border:0;background:#1c211e;color:white;border-radius:14px;padding:13px;font-weight:800;cursor:pointer}.secondary{width:100%;margin-top:8px;border:1px solid var(--line);background:transparent;border-radius:14px;padding:12px;font-weight:700}
-.admin{display:none}.admin .card{font-size:13px}.badge{display:inline-block;padding:4px 7px;border-radius:99px;background:var(--sage2);font-size:10px}
-.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:11px 16px;border-radius:99px;font-size:12px;display:none;z-index:40;white-space:nowrap}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:15px;margin:10px 0}.top{display:flex;justify-content:space-between;gap:10px}.time{font-size:21px;font-weight:850}.type{background:var(--sage2);color:#53604f;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:800;height:max-content}.meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin:10px 0 13px}.book{border:0;background:var(--sage);color:white;width:100%;padding:12px;border-radius:14px;font-weight:800;cursor:pointer}.book:disabled{opacity:.45}
+.about{background:#eae6dd;border-radius:24px;padding:20px}.about p{font-size:13px;line-height:1.65;color:#626a63}.contact{display:grid;grid-template-columns:1fr 1fr;gap:9px}.contact a{background:var(--paper);border:1px solid var(--line);padding:13px;border-radius:14px;text-align:center;text-decoration:none;color:var(--ink);font-weight:750}
+nav{position:fixed;bottom:0;width:min(100%,480px);background:#fffdf8ee;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 8px 14px;z-index:10}.nav{font-size:11px;color:var(--muted);text-align:center;cursor:pointer}.nav i{display:block;font-style:normal;font-size:20px}
+.overlay{display:none;position:fixed;inset:0;background:#1d251f66;z-index:20;align-items:flex-end;justify-content:center}.sheet{width:min(100%,480px);background:var(--paper);border-radius:28px 28px 0 0;padding:20px 18px 30px}.handle{width:40px;height:4px;border-radius:5px;background:#d5d0c5;margin:0 auto 17px}.sheet h3{margin:0}.sheet p{font-size:13px;color:var(--muted)}label{display:block;font-size:12px;font-weight:750;margin:12px 0 5px}input{width:100%;border:1px solid var(--line);border-radius:13px;padding:12px}.summary{background:#f1eee6;border-radius:15px;padding:13px;margin:12px 0;font-size:13px}.pay{width:100%;border:0;background:#1c211e;color:white;border-radius:14px;padding:13px;font-weight:800}.secondary{width:100%;margin-top:8px;border:1px solid var(--line);background:transparent;border-radius:14px;padding:12px}.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:11px 16px;border-radius:99px;font-size:12px;display:none;z-index:40;white-space:nowrap}.status{margin:12px 18px;background:#fff8e8;border:1px solid #ead8aa;border-radius:16px;padding:12px;font-size:12px}.empty{text-align:center;padding:25px;color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
@@ -28,104 +25,99 @@ nav{position:fixed;bottom:0;width:min(100%,480px);background:#fffdf8ee;backdrop-
 <header><div class="brand">noyoga</div><div class="mark">n</div></header>
 
 <section class="hero" id="home">
-  <div class="heroPhoto" aria-label="מקום לתמונה של נוי">✦</div>
-  <div class="heroText">
-    <div class="eyebrow">יוגה • נשימה • תנועה</div>
-    <h1>לחזור לגוף.<br>למצוא שקט.</h1>
-    <p>שיעורי יוגה עם נוי, בקבוצות קטנות ובאווירה נעימה — לכל הרמות.</p>
-    <a class="cta" href="#classes">לוח השיעורים</a>
-  </div>
+<div class="heroPhoto">✦</div>
+<div class="heroText"><div class="eyebrow">יוגה • נשימה • תנועה</div><h1>לחזור לגוף.<br>למצוא שקט.</h1><p>שיעורי יוגה עם נוי, בקבוצות קטנות ובאווירה נעימה — לכל הרמות.</p><a class="cta" href="#classes">לוח השיעורים</a></div>
 </section>
+
+<div id="status" class="status" style="display:none"></div>
 
 <section class="section" id="classes">
 <div class="head"><h2>השיעורים הקרובים</h2><span class="small" id="count"></span></div>
 <div class="days" id="days"></div>
-<div id="classList"></div>
+<div id="classList"><div class="empty">טוען את השיעורים...</div></div>
 </section>
 
-<section class="section" id="about">
-<div class="about"><b>נעים להכיר, אני נוי 🌿</b><p>אני מאמינה שיוגה היא מקום לעצור, לנשום ולהקשיב לגוף. השיעורים שלי משלבים תנועה, נשימה ונוכחות — בלי צורך להיות גמישים או מנוסים.</p></div>
-</section>
+<section class="section" id="about"><div class="about"><b>נעים להכיר, אני נוי 🌿</b><p>אני מאמינה שיוגה היא מקום לעצור, לנשום ולהקשיב לגוף. השיעורים שלי משלבים תנועה, נשימה ונוכחות — בלי צורך להיות גמישים או מנוסים.</p></div></section>
+<section class="section"><div class="head"><h2>יצירת קשר</h2></div><div class="contact"><a href="tel:0506991834">📞 050-699-1834</a><a href="https://wa.me/972506991834" target="_blank">💬 WhatsApp</a></div></section>
 
-<section class="section">
-<div class="head"><h2>יצירת קשר</h2></div>
-<div class="contact"><a href="tel:0506991834">📞 050-699-1834</a><a href="https://wa.me/972506991834" target="_blank">💬 WhatsApp</a></div>
-</section>
-
-<section class="section admin" id="admin">
-<div class="head"><h2>הרשמות</h2><button class="secondary" onclick="clearBookings()">ניקוי מקומי</button></div>
-<div id="bookings"></div>
-</section>
-
-<nav>
-<div class="nav active" onclick="go('home')"><i>⌂</i>בית</div>
-<div class="nav" onclick="go('classes')"><i>◷</i>שיעורים</div>
-<div class="nav" onclick="go('about')"><i>♡</i>נוי</div>
-<div class="nav" onclick="openAdmin()"><i>☷</i>ניהול</div>
-</nav>
+<nav><div class="nav" onclick="go('home')"><i>⌂</i>בית</div><div class="nav" onclick="go('classes')"><i>◷</i>שיעורים</div><div class="nav" onclick="go('about')"><i>♡</i>נוי</div><div class="nav" onclick="location.href='admin.html'"><i>☷</i>ניהול</div></nav>
 </div>
 
-<div class="overlay" id="overlay">
-<div class="sheet">
-<div class="handle"></div>
-<h3>הרשמה לשיעור</h3>
-<p id="chosen"></p>
-<div class="summary" id="sum"></div>
+<div class="overlay" id="overlay"><div class="sheet">
+<div class="handle"></div><h3>הרשמה לשיעור</h3><p id="chosen"></p><div class="summary" id="sum"></div>
 <label>שם מלא</label><input id="name" autocomplete="name" placeholder="איך קוראים לך?">
-<label>טלפון</label><input id="phone" inputmode="tel" autocomplete="tel" placeholder="050-0000000">
+<label>טלפון</label><input id="phone" inputmode="tel" placeholder="050-0000000">
 <label>הערה (לא חובה)</label><input id="note" placeholder="משהו שנוי צריכה לדעת?">
-<button class="pay" onclick="register()">הרשמה ומעבר לתשלום</button>
-<button class="secondary" onclick="closeSheet()">ביטול</button>
-</div>
-</div>
+<button class="pay" id="registerButton" onclick="register()">הרשמה</button><button class="secondary" onclick="closeSheet()">ביטול</button>
+</div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-const CLASSES=[
-{id:1,date:'2026-08-18',day:'ג׳',label:'היום',time:'08:30',type:'Hatha',duration:60,price:65,spots:10,booked:2},
-{id:2,date:'2026-08-18',day:'ג׳',label:'היום',time:'18:00',type:'Flow',duration:75,price:75,spots:12,booked:5},
-{id:3,date:'2026-08-19',day:'ד׳',label:'מחר',time:'09:00',type:'Gentle',duration:60,price:65,spots:10,booked:3},
-{id:4,date:'2026-08-20',day:'ה׳',label:'ה׳',time:'19:30',type:'Flow',duration:75,price:75,spots:12,booked:4},
-{id:5,date:'2026-08-22',day:'ש׳',label:'שבת',time:'09:30',type:'Morning',duration:60,price:65,spots:10,booked:1}
-];
-let selected=null, activeDate='all';
-let bookings=JSON.parse(localStorage.getItem('noyoga_bookings')||'[]');
+const SUPABASE_URL="https://rottdazqpvtmoarqymfj.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_M6VIzQn8GktMyyCwi5EC_A_4V6ov80s";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+let CLASSES=[],selected=null,activeDate="all",registrationCounts={};
 
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+function toast(t){const x=$("toast");x.textContent=t;x.style.display="block";setTimeout(()=>x.style.display="none",3200)}
+function go(id){$(id).scrollIntoView({behavior:"smooth"})}
+function closeSheet(){$("overlay").style.display="none"}
+function dayName(d){return new Intl.DateTimeFormat("he-IL",{weekday:"short"}).format(new Date(d+"T12:00:00")).replace(".","")}
+function dateLabel(d){const x=new Date(d+"T12:00:00"),n=new Date();const a=new Date(n.getFullYear(),n.getMonth(),n.getDate()),b=new Date(x.getFullYear(),x.getMonth(),x.getDate()),diff=Math.round((b-a)/86400000);if(diff===0)return"היום";if(diff===1)return"מחר";return new Intl.DateTimeFormat("he-IL",{day:"2-digit",month:"2-digit"}).format(x)}
+
+async function loadCounts(){
+ registrationCounts={};
+ const {data}=await db.from("registrations").select("*");
+ if(!data)return;
+ data.forEach(r=>{const id=r.class_id||r.class_uuid||r.classId;if(id)registrationCounts[id]=(registrationCounts[id]||0)+1});
+}
+
+async function loadClasses(){
+ $("classList").innerHTML='<div class="empty">טוען את השיעורים...</div>';
+ const {data,error}=await db.from("classes").select("*").order("class_date",{ascending:true}).order("start_time",{ascending:true});
+ if(error){$("classList").innerHTML='<div class="empty">לא הצלחנו לטעון את השיעורים.</div>';$("status").textContent="שגיאת Supabase: "+error.message;$("status").style.display="block";return}
+ CLASSES=(data||[]).map(c=>({
+  id:c.id,date:c.class_date,day:dayName(c.class_date),label:dateLabel(c.class_date),
+  time:String(c.start_time||"").slice(0,5),endTime:String(c.end_time||"").slice(0,5),
+  type:c.title||"יוגה",description:c.description||"",duration:Number(c.duration_minutes||60),
+  capacity:Number(c.capacity||10),instructor:c.instructor||"נוי",location:c.location||"סטודיו Noyoga",
+  isOpen:c.is_open!==false&&c.is_active!==false&&c.active!==false
+ })).filter(c=>c.date&&c.time);
+ await loadCounts();renderDays();renderClasses();
+ if(!CLASSES.length){$("status").textContent="כרגע אין שיעורים. אפשר להוסיף שיעור דרך עמוד הניהול.";$("status").style.display="block"}
+}
 function renderDays(){
- const unique=[...new Map(CLASSES.map(c=>[c.date,c])).values()];
- document.getElementById('days').innerHTML='<button class="day active" onclick="filterDate(\\'all\\',this)"><b>הכול</b><span>כל השיעורים</span></button>'+
- unique.map(c=>`<button class="day" onclick="filterDate('${c.date}',this)"><b>${c.day}</b><span>${c.label}</span></button>`).join('');
+ const u=[...new Map(CLASSES.map(c=>[c.date,c])).values()];
+ $("days").innerHTML='<button class="day active" onclick="filterDate(\'all\',this)"><b>הכול</b><span>כל השיעורים</span></button>'+u.map(c=>`<button class="day" onclick="filterDate('${esc(c.date)}',this)"><b>${esc(c.day)}</b><span>${esc(c.label)}</span></button>`).join("")
 }
-function filterDate(d,el){activeDate=d;document.querySelectorAll('.day').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderClasses()}
+function filterDate(d,e){activeDate=d;document.querySelectorAll(".day").forEach(x=>x.classList.remove("active"));e.classList.add("active");renderClasses()}
 function renderClasses(){
- let data=CLASSES.filter(c=>activeDate==='all'||c.date===activeDate);
- document.getElementById('count').textContent=data.length+' שיעורים';
- document.getElementById('classList').innerHTML=data.map(c=>{
-  const local=bookings.filter(b=>b.classId===c.id).length;
-  const left=Math.max(0,c.spots-c.booked-local);
-  return `<article class="card"><div class="top"><div><div class="time">${c.time}</div><div class="small">${c.day} · ${c.label}</div></div><div class="type">${c.type}</div></div><div class="meta"><span>${c.duration} דק׳</span><span>עד ${c.spots} משתתפים</span><span>₪${c.price}</span></div><button class="book" ${left===0?'disabled':''} onclick="openBooking(${c.id})">${left===0?'השיעור מלא':'להרשמה · נשארו '+left+' מקומות'}</button></article>`
- }).join('');
+ const data=CLASSES.filter(c=>activeDate==="all"||c.date===activeDate);$("count").textContent=data.length?data.length+" שיעורים":"";
+ if(!data.length){$("classList").innerHTML='<div class="empty">אין שיעורים בתאריך הזה.</div>';return}
+ $("classList").innerHTML=data.map(c=>{
+  const booked=registrationCounts[c.id]||0,left=Math.max(0,c.capacity-booked),ok=c.isOpen&&left>0;
+  return `<article class="card"><div class="top"><div><div class="time">${esc(c.time)}</div><div class="small">${esc(c.day)} · ${esc(c.label)}</div></div><div class="type">${esc(c.type)}</div></div><div class="meta"><span>${c.duration} דק׳</span><span>${esc(c.location)}</span><span>${left} מקומות פנויים</span></div>${c.description?`<div class="small">${esc(c.description)}</div>`:""}<button class="book" ${ok?"":"disabled"} onclick="openBooking('${esc(c.id)}')">${!c.isOpen?"ההרשמה סגורה":left===0?"השיעור מלא":"להרשמה · נשארו "+left+" מקומות"}</button></article>`
+ }).join("")
 }
-function openBooking(id){selected=CLASSES.find(c=>c.id===id);document.getElementById('chosen').textContent=`${selected.type} · ${selected.day} ${selected.time}`;document.getElementById('sum').innerHTML=`<b>₪${selected.price}</b> · ${selected.duration} דקות · ${selected.label}`;document.getElementById('overlay').style.display='flex'}
-function closeSheet(){document.getElementById('overlay').style.display='none'}
-function register(){
- const name=document.getElementById('name').value.trim(), phone=document.getElementById('phone').value.trim();
- if(!name||!phone){toast('נא למלא שם וטלפון');return}
- const b={id:Date.now(),classId:selected.id,className:selected.type,time:selected.time,date:selected.date,price:selected.price,name,phone,note:document.getElementById('note').value.trim(),created:new Date().toISOString()};
- bookings.push(b);localStorage.setItem('noyoga_bookings',JSON.stringify(bookings));renderClasses();renderBookings();closeSheet();
- toast('נשמר! עכשיו פותחים את Bit לתשלום');
- // אין כאן קישור Bit מומצא: Bit דורש חיבור עסקי/ספק סליקה. בינתיים פותחים את המספר של נוי.
- setTimeout(()=>{window.location.href='tel:0506991834'},600);
+function openBooking(id){
+ selected=CLASSES.find(c=>String(c.id)===String(id));if(!selected)return;
+ const left=Math.max(0,selected.capacity-(registrationCounts[selected.id]||0));if(!selected.isOpen||left<=0){toast("ההרשמה לשיעור הזה אינה זמינה.");return}
+ $("chosen").textContent=`${selected.type} · ${selected.day} ${selected.time}`;
+ $("sum").innerHTML=`<b>${esc(selected.label)}</b> · ${selected.duration} דקות · ${esc(selected.location)}`;
+ $("overlay").style.display="flex"
 }
-function renderBookings(){
- const el=document.getElementById('bookings');
- el.innerHTML=bookings.length?bookings.slice().reverse().map(b=>`<div class="card"><b>${b.name}</b> <span class="badge">ממתין לתשלום</span><div class="small">${b.className} · ${b.time} · ₪${b.price}<br>${b.phone}${b.note?' · '+b.note:''}</div></div>`).join(''):'<div class="small">עדיין אין הרשמות.</div>';
+async function register(){
+ const name=$("name").value.trim(),phone=$("phone").value.trim(),note=$("note").value.trim();if(!name||!phone){toast("נא למלא שם וטלפון");return}
+ const b=$("registerButton");b.disabled=true;b.textContent="שומר...";
+ const {error}=await db.from("registrations").insert({class_id:selected.id,full_name:name,phone:phone,note:note||null});
+ b.disabled=false;b.textContent="הרשמה";
+ if(error){toast("לא הצלחנו לשמור את ההרשמה: "+error.message);console.error(error);return}
+ registrationCounts[selected.id]=(registrationCounts[selected.id]||0)+1;renderClasses();closeSheet();
+ $("name").value="";$("phone").value="";$("note").value="";toast("נרשמת בהצלחה לשיעור 🌿")
 }
-function openAdmin(){document.getElementById('admin').style.display='block';renderBookings();document.getElementById('admin').scrollIntoView({behavior:'smooth'})}
-function clearBookings(){if(confirm('למחוק את כל ההרשמות מהמכשיר?')){bookings=[];localStorage.removeItem('noyoga_bookings');renderClasses();renderBookings()}}
-function toast(t){const x=document.getElementById('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',3000)}
-function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth'})}
-renderDays();renderClasses();
+$("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeSheet()});
+loadClasses();
 </script>
 </body>
 </html>
