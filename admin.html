@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noyoga | ניהול שיעורים</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#f7f5f2;color:#242321;font-family:Arial,sans-serif}
+    .container{max-width:1050px;margin:auto;padding:18px}
+    .card{background:#fff;border:1px solid #e5e0da;border-radius:18px;padding:20px;margin:16px 0}
+    header,.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    h1{margin:0;font-size:28px} h2{margin:0 0 16px}
+    .muted{color:#777}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+    .full{grid-column:1/-1}
+    label{display:block;font-size:14px;font-weight:bold}
+    input,textarea{width:100%;margin-top:6px;padding:12px;border:1px solid #d8d3cd;border-radius:10px;font-size:15px;background:#fff}
+    textarea{min-height:90px;resize:vertical}
+    button{padding:11px 15px;border:0;border-radius:10px;cursor:pointer;font-size:14px}
+    .primary{background:#242321;color:#fff}.secondary{background:#fff;border:1px solid #ccc}
+    .danger{background:#f6dddd;color:#8b2222}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+    .row{border-top:1px solid #eee;padding:16px 0;display:flex;justify-content:space-between;gap:15px}
+    .row:first-child{border-top:0}
+    .class-title{font-size:18px;font-weight:700}
+    .meta{color:#666;line-height:1.7;margin-top:5px}
+    .badge{display:inline-block;padding:4px 9px;border-radius:20px;font-size:12px;margin-right:5px}
+    .open{background:#e4f4e8;color:#27703a}.closed{background:#eee;color:#777}
+    #login{max-width:430px;margin:70px auto}
+    #message{display:none;padding:12px;border-radius:10px;margin-top:12px}
+    .ok{background:#e5f5e9;color:#236b35}.err{background:#fae7e5;color:#8b2925}
+    @media(max-width:700px){
+      .container{padding:12px}.grid{grid-template-columns:1fr}.full{grid-column:auto}
+      header{align-items:flex-start;flex-direction:column}.row{display:block}
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- =====================================================
+       NOYOGA - הגדרות Supabase
+       כאן מחליפים את שני הערכים בלבד.
+       ===================================================== -->
+  <section class="card" style="background:#fff8e8;border-color:#ead8aa">
+    <strong>⚙️ לפני השימוש:</strong>
+    <div class="muted" style="margin-top:6px">
+      חפש בקוד את המילים YOUR_PROJECT ו-YOUR_SUPABASE_ANON_KEY
+      והחלף אותן בפרטי ה-Supabase שלך.
+    </div>
+  </section>
+
+  <section id="login" class="card">
+    <h1>כניסת מנהל</h1>
+    <p class="muted">כניסה לניהול שיעורי Noyoga</p>
+
+    <form id="loginForm">
+      <label>
+        אימייל
+        <input id="email" type="email" autocomplete="email" required>
+      </label>
+
+      <div style="height:12px"></div>
+
+      <label>
+        סיסמה
+        <input id="password" type="password" autocomplete="current-password" required>
+      </label>
+
+      <div class="actions">
+        <button class="primary" type="submit">כניסה</button>
+      </div>
+    </form>
+  </section>
+
+  <main id="admin" style="display:none">
+
+    <header>
+      <div>
+        <h1>Noyoga — ניהול שיעורים</h1>
+        <div id="who" class="muted"></div>
+      </div>
+      <button id="logout" class="secondary">התנתקות</button>
+    </header>
+
+    <div id="message"></div>
+
+    <section class="card">
+      <div class="toolbar">
+        <h2 id="formTitle">➕ הוספת שיעור</h2>
+        <button id="cancelEdit" class="secondary" style="display:none">ביטול עריכה</button>
+      </div>
+
+      <form id="classForm">
+        <input id="classId" type="hidden">
+
+        <div class="grid">
+          <label>
+            שם השיעור
+            <input id="title" required placeholder="יוגה מתחילים">
+          </label>
+
+          <label>
+            מדריך/ה
+            <input id="instructor" placeholder="נוי">
+          </label>
+
+          <label>
+            תאריך
+            <input id="classDate" type="date" required>
+          </label>
+
+          <label>
+            שעת התחלה
+            <input id="startTime" type="time" required>
+          </label>
+
+          <label>
+            שעת סיום
+            <input id="endTime" type="time" required>
+          </label>
+
+          <label>
+            מספר מקומות
+            <input id="capacity" type="number" min="1" value="10" required>
+          </label>
+
+          <label class="full">
+            מיקום
+            <input id="location" placeholder="סטודיו Noyoga">
+          </label>
+
+          <label class="full">
+            תיאור
+            <textarea id="description" placeholder="פרטים על השיעור"></textarea>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="saveButton" class="primary" type="submit">הוסף שיעור</button>
+          <button id="clearButton" class="secondary" type="button">ניקוי</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <h2>📅 השיעורים</h2>
+        <button id="refreshButton" class="secondary">רענון</button>
+      </div>
+
+      <div id="classesList">
+        <p class="muted">טוען...</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* =========================================================
+   🔴🔴🔴 SUPABASE - החלף כאן את שני הערכים 🔴🔴🔴
+
+   1. SUPABASE_URL:https://rottdazqpvtmoarqymfj.supabase.co
+      הדבק כאן את Project URL שלך.
+
+   2. SUPABASE_ANON_KEY:sb_publishable_M6VIzQn8GktMyyCwi5EC_A_4V6ov80s
+      הדבק כאן את Publishable/Anon key שלך.
+
+   ❗ לא להדביק כאן Service Role Key.
+   ========================================================= */
+
+const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+/* =========================================================
+   אין צורך לשנות שום דבר מתחת לשורה הזאת.
+   ========================================================= */
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const $ = (id) => document.getElementById(id);
+
+function showMessage(text, error = false) {
+  const box = $("message");
+  box.textContent = text;
+  box.className = error ? "err" : "ok";
+  box.style.display = "block";
+  setTimeout(() => {
+    box.style.display = "none";
+  }, 4500);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#039;"
+  }[char]));
+}
+
+function resetForm() {
+  $("classForm").reset();
+  $("classId").value = "";
+  $("capacity").value = 10;
+  $("formTitle").textContent = "➕ הוספת שיעור";
+  $("saveButton").textContent = "הוסף שיעור";
+  $("cancelEdit").style.display = "none";
+}
+
+function formatDate(date) {
+  return new Intl.DateTimeFormat("he-IL", {
+    weekday:"short",
+    day:"2-digit",
+    month:"2-digit",
+    year:"numeric"
+  }).format(new Date(date + "T12:00:00"));
+}
+
+function makeStartsAt(date, time) {
+  return new Date(date + "T" + time + ":00").toISOString();
+}
+
+async function checkAdmin() {
+  const { data: { user }, error } = await db.auth.getUser();
+
+  if (error || !user) {
+    return false;
+  }
+
+  const { data: profile, error: profileError } = await db
+    .from("profiles")
+    .select("id, full_name, role")
+    .eq("id", user.id)
+    .single();
+
+  if (
+    profileError ||
+    !profile ||
+    profile.role !== "admin"
+  ) {
+    throw new Error("המשתמש המחובר אינו מוגדר כמנהל.");
+  }
+
+  $("who").textContent =
+    profile.full_name
+      ? "שלום " + profile.full_name
+      : user.email;
+
+  return true;
+}
+
+async function loadClasses() {
+  $("classesList").innerHTML =
+    '<p class="muted">טוען...</p>';
+
+  const { data, error } = await db
+    .from("classes")
+    .select("*")
+    .order("class_date", { ascending:true })
+    .order("start_time", { ascending:true });
+
+  if (error) {
+    $("classesList").innerHTML = "";
+    showMessage(error.message, true);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    $("classesList").innerHTML =
+      '<p class="muted">אין עדיין שיעורים.</p>';
+    return;
+  }
+
+  $("classesList").innerHTML = data.map((item) => {
+
+    const isOpen =
+      item.is_open === true &&
+      item.is_active !== false &&
+      item.active !== false;
+
+    return `
+      <div class="row">
+        <div>
+          <div class="class-title">
+            ${escapeHtml(item.title)}
+
+            <span class="badge ${isOpen ? "open" : "closed"}">
+              ${isOpen ? "פתוח להרשמה" : "סגור"}
+            </span>
+          </div>
+
+          <div class="meta">
+            ${escapeHtml(formatDate(item.class_date))}
+            · ${escapeHtml(item.start_time || "")}
+            – ${escapeHtml(item.end_time || "")}
+            · ${escapeHtml(item.capacity ?? "")} מקומות
+            ${item.instructor
+              ? " · " + escapeHtml(item.instructor)
+              : ""}
+            ${item.location
+              ? " · " + escapeHtml(item.location)
+              : ""}
+          </div>
+
+          ${
+            item.description
+              ? `<div class="meta">${escapeHtml(item.description)}</div>`
+              : ""
+          }
+        </div>
+
+        <div class="actions">
+          <button
+            class="secondary"
+            onclick="editClass('${item.id}')">
+            ✏️ עריכה
+          </button>
+
+          <button
+            class="secondary"
+            onclick="toggleClass('${item.id}', ${isOpen})">
+            ${isOpen ? "🔒 סגור הרשמה" : "🔓 פתח הרשמה"}
+          </button>
+
+          <button
+            class="danger"
+            onclick="deleteClass('${item.id}')">
+            🗑️ מחיקה
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function saveClass(event) {
+  event.preventDefault();
+
+  const id = $("classId").value;
+  const date = $("classDate").value;
+  const start = $("startTime").value;
+  const end = $("endTime").value;
+
+  if (end <= start) {
+    showMessage(
+      "שעת הסיום חייבת להיות אחרי שעת ההתחלה.",
+      true
+    );
+    return;
+  }
+
+  const startDate = new Date("1970-01-01T" + start + ":00");
+  const endDate = new Date("1970-01-01T" + end + ":00");
+
+  const duration =
+    Math.round((endDate - startDate) / 60000);
+
+  const payload = {
+    title: $("title").value.trim(),
+    description:
+      $("description").value.trim() || null,
+
+    class_date: date,
+    start_time: start,
+    end_time: end,
+
+    duration_minutes: duration,
+
+    capacity:
+      Number($("capacity").value),
+
+    instructor:
+      $("instructor").value.trim() || null,
+
+    location:
+      $("location").value.trim() || null,
+
+    starts_at:
+      makeStartsAt(date, start),
+
+    is_open: true,
+    is_active: true,
+    active: true,
+
+    updated_at:
+      new Date().toISOString()
+  };
+
+  $("saveButton").disabled = true;
+
+  let result;
+
+  if (id) {
+    result = await db
+      .from("classes")
+      .update(payload)
+      .eq("id", id);
+  } else {
+    result = await db
+      .from("classes")
+      .insert(payload);
+  }
+
+  $("saveButton").disabled = false;
+
+  if (result.error) {
+    showMessage(result.error.message, true);
+    return;
+  }
+
+  showMessage(
+    id
+      ? "השיעור עודכן בהצלחה."
+      : "השיעור נוסף בהצלחה."
+  );
+
+  resetForm();
+  await loadClasses();
+}
+
+window.editClass = async function(id) {
+
+  const { data, error } = await db
+    .from("classes")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    showMessage(error.message, true);
+    return;
+  }
+
+  $("classId").value = data.id;
+  $("title").value = data.title || "";
+  $("description").value =
+    data.description || "";
+
+  $("classDate").value =
+    data.class_date || "";
+
+  $("startTime").value =
+    (data.start_time || "").slice(0,5);
+
+  $("endTime").value =
+    (data.end_time || "").slice(0,5);
+
+  $("capacity").value =
+    data.capacity || 10;
+
+  $("instructor").value =
+    data.instructor || "";
+
+  $("location").value =
+    data.location || "";
+
+  $("formTitle").textContent =
+    "✏️ עריכת שיעור";
+
+  $("saveButton").textContent =
+    "שמור שינויים";
+
+  $("cancelEdit").style.display =
+    "inline-block";
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+};
+
+window.toggleClass = async function(id, currentlyOpen) {
+
+  const { error } = await db
+    .from("classes")
+    .update({
+      is_open: !currentlyOpen,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id);
+
+  if (error) {
+    showMessage(error.message, true);
+    return;
+  }
+
+  showMessage(
+    currentlyOpen
+      ? "ההרשמה נסגרה."
+      : "ההרשמה נפתחה."
+  );
+
+  await loadClasses();
+};
+
+window.deleteClass = async function(id) {
+
+  if (!confirm("למחוק את השיעור? הפעולה אינה הפיכה.")) {
+    return;
+  }
+
+  const { error } = await db
+    .from("classes")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    showMessage(error.message, true);
+    return;
+  }
+
+  showMessage("השיעור נמחק.");
+  await loadClasses();
+};
+
+$("loginForm").addEventListener(
+  "submit",
+  async (event) => {
+
+    event.preventDefault();
+
+    const { error } =
+      await db.auth.signInWithPassword({
+        email:
+          $("email").value.trim(),
+
+        password:
+          $("password").value
+      });
+
+    if (error) {
+      showMessage(error.message, true);
+      return;
+    }
+
+    try {
+
+      await checkAdmin();
+
+      $("login").style.display = "none";
+      $("admin").style.display = "block";
+
+      await loadClasses();
+
+    } catch (error) {
+
+      await db.auth.signOut();
+
+      showMessage(
+        error.message,
+        true
+      );
+    }
+  }
+);
+
+$("logout").addEventListener(
+  "click",
+  async () => {
+    await db.auth.signOut();
+    location.reload();
+  }
+);
+
+$("classForm").addEventListener(
+  "submit",
+  saveClass
+);
+
+$("clearButton").addEventListener(
+  "click",
+  resetForm
+);
+
+$("cancelEdit").addEventListener(
+  "click",
+  resetForm
+);
+
+$("refreshButton").addEventListener(
+  "click",
+  loadClasses
+);
+
+(async function start() {
+
+  try {
+
+    const isAdmin =
+      await checkAdmin();
+
+    if (isAdmin) {
+
+      $("login").style.display = "none";
+      $("admin").style.display = "block";
+
+      await loadClasses();
+
+    } else {
+
+      $("login").style.display = "block";
+
+    }
+
+  } catch (error) {
+
+    $("login").style.display = "block";
+
+    setTimeout(() => {
+      showMessage(
+        error.message,
+        true
+      );
+    }, 300);
+  }
+
+})();
+</script>
+
+</body>
+</html>
